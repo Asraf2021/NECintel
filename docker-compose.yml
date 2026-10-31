@@ -1,0 +1,15 @@
+services:
+  smart-transit:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - SIM_ENABLED=1
+      - SIM_REPORTS=1
+      - ANOMALY_MINUTES=10
+      - LOAD_WINDOW_MINUTES=10
+    volumes:
+      - transit-data:/app/data
+
+volumes:
+  transit-data:

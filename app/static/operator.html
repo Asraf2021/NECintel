@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="az">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart Transit Bakı – Operator paneli</title>
+  <link rel="icon" href="/static/icon.svg">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="op">
+<header class="op-header">
+  <span class="m-title">🛰 <span data-i18n="op_title">Operator paneli</span> · <span data-i18n="app_name">Smart Transit Bakı</span></span>
+  <span class="op-user"><span id="user"></span> <select class="lang"></select> <button id="logout" class="btn" data-i18n="logout">Çıxış</button></span>
+</header>
+<div id="map" class="op-map"></div>
+<button id="toggle-left" class="panel-toggle left" data-i18n-title="hide_panels">◧</button>
+<button id="toggle-right" class="panel-toggle right" data-i18n-title="hide_panels">◨</button>
+
+<aside class="op-left">
+  <div class="kpis compact">
+    <div class="kpi"><div class="v" id="kpi-lines">—</div><div class="l" data-i18n="lines">Xətt</div></div>
+    <div class="kpi"><div class="v" id="kpi-buses">—</div><div class="l" data-i18n="buses">Avtobus</div></div>
+    <div class="kpi"><div class="v" id="kpi-reports">—</div><div class="l" data-i18n="reports10">Hesabat</div></div>
+    <div class="kpi"><div class="v" id="kpi-alerts" style="color:#dc2626">—</div><div class="l" data-i18n="alerts">Xəbərdarlıq</div></div>
+  </div>
+  <div id="view-list">
+    <div class="op-tools">
+      <input id="line-filter" type="search" data-i18n-ph="line_search_ph">
+      <label><input id="only-data" type="checkbox" checked> <span data-i18n="only_data">yalnız məlumatı olan xətlər</span></label>
+    </div>
+    <div id="lines" class="line-list"></div>
+    <p class="muted small" data-i18n="sources_hint"></p>
+  </div>
+  <div id="view-detail" hidden>
+    <div class="detail-head">
+      <div class="detail-num">№ <span id="d-number"></span></div>
+      <div class="dir-toggle"><span class="muted" data-i18n="direction">İstiqamət</span>: <button class="btn sel" data-dir="1">▲</button><button class="btn" data-dir="2">▼</button></div>
+    </div>
+    <div class="detail-sum"><b id="d-duration"></b><span id="d-stops" class="muted"></span></div>
+    <div class="detail-route"><span class="line-num" id="d-badge"></span> <span id="d-name"></span></div>
+    <table class="kv">
+      <tr><td data-i18n="carrier">Daşıyıcı</td><td id="d-carrier"></td></tr>
+      <tr><td data-i18n="loop_len">Dövrə uzunluğu</td><td id="d-len"></td></tr>
+      <tr><td data-i18n="load">Yük</td><td id="d-load"></td></tr>
+      <tr><td data-i18n="reports">Hesabatlar</td><td id="d-reports"></td></tr>
+      <tr><td data-i18n="bus_count">Avtobus sayı</td><td id="d-buses"></td></tr>
+      <tr><td data-i18n="avg_speed">Orta sürət</td><td id="d-speed"></td></tr>
+      <tr><td data-i18n="bunching">Yığılma</td><td id="d-bunching"></td></tr>
+      <tr><td data-i18n="high_for">“Yüksək” müddəti</td><td id="d-high"></td></tr>
+    </table>
+    <div style="display:flex;gap:8px;margin:8px 0"><button id="d-demo" class="btn" data-i18n="demo">Demo</button></div>
+    <h3 data-i18n="stops_title">Dayanacaqlar</h3>
+    <div id="d-timeline" class="timeline tall"></div>
+    <button id="back" class="btn" style="width:100%;margin-top:10px">↩ <span data-i18n="back">Geri qayıt</span></button>
+  </div>
+</aside>
+
+<aside class="op-right">
+  <h2 data-i18n="alerts_title">Xəbərdarlıqlar və tövsiyələr</h2>
+  <div id="alerts"></div>
+  <h3 data-i18n="feed_title">Son sərnişin hesabatları</h3>
+  <ul id="feed" class="feed"></ul>
+  <h3 data-i18n="log_title">Son hadisələr</h3>
+  <div id="log" class="muted log"></div>
+</aside>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/i18n.js"></script>
+<script src="/static/operator.js"></script>
+</body>
+</html>

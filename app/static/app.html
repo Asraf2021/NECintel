@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="az">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Smart Transit">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Smart Transit Bakı</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/static/icon.svg">
+  <link rel="apple-touch-icon" href="/static/icon-180.png">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="mobile">
+<div class="phone">
+  <header class="m-header">
+    <span class="m-title">🚌 <span data-i18n="app_name">Smart Transit Bakı</span></span>
+    <select class="lang" aria-label="language"></select>
+  </header>
+  <div class="m-stage" id="stage">
+  <div id="map" class="m-map"></div>
+  <div class="m-sheet" id="sheet">
+  <div class="m-handle" id="handle"></div>
+  <main class="m-body">
+    <section id="tab-stop" class="m-tab">
+      <label for="route-filter" data-i18n="route">Marşrut</label>
+      <input id="route-filter" type="search" data-i18n-ph="route_search_ph" autocomplete="off">
+      <select id="route"></select>
+      <div class="m-load"><span class="muted" data-i18n="line_load">Xəttin yükü</span>: <span id="route-load" class="badge no_data">—</span> <span id="route-reports" class="muted"></span></div>
+      <div id="route-meta" class="muted"></div>
+      <label for="stop" data-i18n="stop">Dayanacaq</label>
+      <select id="stop"></select>
+      <div class="ac" id="stop-search-wrap" hidden><span class="ac-ico">🔍</span><input id="stop-search" data-i18n-ph="search_stop" autocomplete="off"><div class="ac-list" id="stop-search-list" hidden></div></div>
+      <h3 data-i18n="eta_title">Gözlənilən gəliş (ETA)</h3>
+      <ul id="eta" class="eta-list"></ul>
+      <div id="eta-empty" class="empty" data-i18n="pick_stop">Dayanacaq seçin.</div>
+      <button id="eta-all" class="btn" style="width:100%;margin-top:6px" hidden></button>
+      <h3 id="timeline-title" data-i18n="timeline_title">Marşrut cədvəli</h3>
+      <div class="dir-toggle" id="dir-toggle"><button class="btn sel" data-dir="1" data-i18n="dir1">1-ci istiqamət</button><button class="btn" data-dir="2" data-i18n="dir2">2-ci istiqamət</button></div>
+      <div id="timeline" class="timeline"></div>
+    </section>
+
+    <section id="tab-trip" class="m-tab" hidden>
+      <label for="from" data-i18n="from">Haradan</label>
+      <div class="ac"><span class="ac-ico">🔍</span><input id="from" data-i18n-ph="from_ph" autocomplete="off"><div class="ac-list" id="from-list" hidden></div></div>
+      <label for="to" data-i18n="to">Hara</label>
+      <div class="ac"><span class="ac-ico">🔍</span><input id="to" data-i18n-ph="to_ph" autocomplete="off"><div class="ac-list" id="to-list" hidden></div></div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button id="trip-go" class="btn primary" style="flex:1" data-i18n="find">Marşrut tap</button>
+        <button id="trip-swap" class="btn">⇄</button>
+      </div>
+      <div id="trip-toast" class="toast"></div>
+      <div id="trip-results"></div>
+      <div id="trip-timeline"></div>
+    </section>
+
+    <section id="tab-report" class="m-tab" hidden>
+      <h3 data-i18n="report_title">Avtobusun yükü haqqında məlumat verin</h3>
+      <div class="muted"><span data-i18n="route">Marşrut</span>: <b id="report-route">—</b></div>
+      <label for="bus" data-i18n="which_bus">Hansı avtobusdasınız?</label>
+      <select id="bus"></select>
+      <div class="report-buttons">
+        <button class="low" data-level="low"><span data-i18n="low">Aşağı</span><small data-i18n="low_hint">boş yer var</small></button>
+        <button class="medium" data-level="medium"><span data-i18n="medium">Orta</span><small data-i18n="medium_hint">ayaq üstə yer var</small></button>
+        <button class="high" data-level="high"><span data-i18n="high">Yüksək</span><small data-i18n="high_hint">sıxlıq</small></button>
+      </div>
+      <div id="toast" class="toast"></div>
+      <p class="muted" data-i18n="report_note"></p>
+    </section>
+
+    <section id="tab-profile" class="m-tab" hidden>
+      <div class="profile-card"><div class="avatar">🧑</div><div><div id="p-name" style="font-weight:700"></div><div id="p-role" class="muted"></div></div></div>
+      <label data-i18n="language">Dil</label>
+      <select class="lang"></select>
+      <button id="install" class="btn primary" style="width:100%;margin-top:14px" data-i18n="install">Tətbiqi telefona quraşdır</button>
+      <div id="install-hint" class="muted" style="margin-top:6px"></div>
+      <button id="logout" class="btn" style="width:100%;margin-top:14px" data-i18n="logout">Çıxış</button>
+    </section>
+  </main>
+  </div>
+  </div>
+  <nav class="m-nav">
+    <button class="active" data-tab="stop"><span>🚏</span><span data-i18n="tab_stop">Dayanacaq</span></button>
+    <button data-tab="trip"><span>🧭</span><span data-i18n="tab_trip">Marşrut</span></button>
+    <button data-tab="report"><span>📣</span><span data-i18n="tab_report">Hesabat</span></button>
+    <button data-tab="profile"><span>👤</span><span data-i18n="tab_profile">Profil</span></button>
+  </nav>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/i18n.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="az">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart Transit Bakı – Giriş</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/static/icon-180.png">
+  <style>
+    body { background: linear-gradient(160deg, #0f172a, #1d4ed8 70%, #38bdf8); min-height: 100vh; display: flex; flex-direction: column; }
+    .auth-top { display: flex; justify-content: flex-end; padding: 12px 16px; }
+    .auth-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .auth { width: 100%; max-width: 420px; background: #fff; border-radius: 16px; padding: 22px; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+    .auth h1 { margin: 0 0 4px; font-size: 22px; }
+    .auth .sub { color: var(--muted); font-size: 13px; margin-bottom: 14px; }
+    .auth input[type=text], .auth input[type=password] { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font: inherit; }
+    .roles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .roles label { border: 2px solid var(--border); border-radius: 10px; padding: 10px; cursor: pointer; text-align: center; font-size: 14px; margin: 0; color: var(--text); }
+    .roles input { display: none; }
+    .roles label.sel { border-color: var(--primary); background: #eff6ff; }
+    .roles .ic { font-size: 22px; display: block; }
+    .auth .btn.primary { width: 100%; padding: 12px; font-size: 15px; margin-top: 14px; }
+    .demo { margin-top: 14px; font-size: 12px; color: var(--muted); background: #f8fafc; border-radius: 8px; padding: 8px 10px; }
+    .demo code { background: #e2e8f0; padding: 1px 5px; border-radius: 4px; }
+    .err { color: var(--high); font-size: 13px; min-height: 18px; margin-top: 8px; }
+    select.lang { width: auto; padding: 6px 8px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+<div class="auth-top"><select class="lang" aria-label="language"></select></div>
+<div class="auth-wrap">
+  <div class="auth">
+    <h1>🚌 <span data-i18n="app_name">Smart Transit Bakı</span></h1>
+    <div class="sub">Smart Transit &amp; Crowdsourcing Engine</div>
+    <div class="tabs">
+      <button class="tab active" data-mode="login" data-i18n="login">Giriş</button>
+      <button class="tab" data-mode="register" data-i18n="register">Qeydiyyat</button>
+    </div>
+    <form id="form" autocomplete="on">
+      <div id="f-name" hidden>
+        <label for="full_name" data-i18n="full_name">Ad Soyad</label>
+        <input type="text" id="full_name" maxlength="80" autocomplete="name">
+      </div>
+      <label for="username" id="username-label" data-i18n="username_or_email">İstifadəçi adı və ya e-poçt</label>
+      <input type="text" id="username" required minlength="3" maxlength="120" autocomplete="username">
+      <div id="f-email" hidden>
+        <label for="email" data-i18n="email">E-poçt</label>
+        <input type="text" id="email" maxlength="120" autocomplete="email" inputmode="email">
+      </div>
+      <label for="password" data-i18n="password">Şifrə</label>
+      <input type="password" id="password" required minlength="6" autocomplete="current-password">
+      <div id="f-confirm" hidden>
+        <label for="password_confirm" data-i18n="password_confirm">Şifrənin təkrarı</label>
+        <input type="password" id="password_confirm" minlength="6" autocomplete="new-password">
+      </div>
+      <div id="f-role" hidden>
+        <label data-i18n="role">Rol</label>
+        <div class="roles">
+          <label class="sel"><input type="radio" name="role" value="passenger" checked><span class="ic">🧑‍🤝‍🧑</span><span data-i18n="role_passenger">Sərnişin</span></label>
+          <label><input type="radio" name="role" value="operator"><span class="ic">🛰</span><span data-i18n="role_operator">Operator</span></label>
+        </div>
+      </div>
+      <button type="submit" class="btn primary" id="submit" data-i18n="login_btn">Daxil ol</button>
+      <div class="err" id="err"></div>
+    </form>
+  </div>
+</div>
+<script src="/static/i18n.js"></script>
+<script>
+(function () {
+  I18N.mount();
+  let mode = "login";
+  const $ = id => document.getElementById(id);
+  const params = new URLSearchParams(location.search);
+  if (params.get("need") === "operator") $("err").textContent = t("need_operator");
+  document.addEventListener("langchange", () => { if (params.get("need") === "operator") $("err").textContent = t("need_operator"); setMode(mode); });
+  function setMode(m) {
+    mode = m;
+    document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active", x.dataset.mode === m));
+    $("f-name").hidden = $("f-role").hidden = $("f-email").hidden = $("f-confirm").hidden = m !== "register";
+    $("email").required = $("password_confirm").required = m === "register";
+    $("submit").textContent = t(m === "login" ? "login_btn" : "register_btn");
+    $("username-label").textContent = t(m === "login" ? "username_or_email" : "username");
+    $("password").autocomplete = m === "login" ? "current-password" : "new-password";
+  }
+  document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  document.querySelectorAll(".roles label").forEach(l => l.addEventListener("click", () => {
+    document.querySelectorAll(".roles label").forEach(x => x.classList.remove("sel")); l.classList.add("sel");
+  }));
+  $("form").addEventListener("submit", async e => {
+    e.preventDefault(); $("err").textContent = "";
+    const body = { username: $("username").value.trim(), password: $("password").value };
+    if (mode === "register") {
+      if ($("password").value !== $("password_confirm").value) { $("err").textContent = t("pw_mismatch"); return; }
+      body.role = document.querySelector("input[name=role]:checked").value; body.full_name = $("full_name").value.trim() || null;
+      body.email = $("email").value.trim(); body.password_confirm = $("password_confirm").value;
+    }
+    try {
+      const r = await fetch(`/api/auth/${mode}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const data = await r.json();
+      if (!r.ok) throw new Error(Array.isArray(data.detail) ? data.detail.map(d => d.msg).join(", ") : data.detail || r.statusText);
+      if (data.registered) {   // qeydiyyatdan sonra giriş səhifəsində qalır
+        setMode("login"); $("password").value = ""; $("password_confirm").value = "";
+        $("err").style.color = "#16a34a"; $("err").textContent = t("registered_ok"); return;
+      }
+      location.href = data.home;
+    } catch (err) { $("err").style.color = ""; $("err").textContent = err.message; }
+  });
+  fetch("/api/auth/me").then(r => r.json()).then(d => { if (d.user && !params.get("need")) location.href = d.home; }).catch(() => {});
+})();
+</script>
+</body>
+</html>
